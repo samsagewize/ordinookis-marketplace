@@ -4,19 +4,26 @@ import { promises as fs } from 'fs'
 import type { Listing } from '@/types'
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'test-listings.json')
+let writeQueue: Promise<void> = Promise.resolve()
 
 async function readListings(): Promise<Listing[]> {
   try {
     const raw = await fs.readFile(DATA_FILE, 'utf8')
-    return JSON.parse(raw)
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
   } catch {
     return []
   }
 }
 
 async function writeListings(listings: Listing[]): Promise<void> {
-  await fs.mkdir(path.dirname(DATA_FILE), { recursive: true })
-  await fs.writeFile(DATA_FILE, JSON.stringify(listings, null, 2), 'utf8')
+  writeQueue = writeQueue.then(async () => {
+    await fs.mkdir(path.dirname(DATA_FILE), { recursive: true })
+    const tmp = `${DATA_FILE}.tmp`
+    await fs.writeFile(tmp, JSON.stringify(listings, null, 2), 'utf8')
+    await fs.rename(tmp, DATA_FILE)
+  })
+  return writeQueue
 }
 
 export async function GET() {

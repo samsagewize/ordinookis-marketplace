@@ -183,14 +183,15 @@ export default function NookiModal({
   }
 
   // ── CANCEL ────────────────────────────────────────────────────────────────────
-  function handleCancel() {
+  async function handleCancel() {
     if (!listing) return
-    void cancelSharedListing(listing.id).then(() => {
+    try {
+      await cancelSharedListing(listing.id)
       onListingChange(); onClose()
-    }).catch((err) => {
+    } catch (err) {
       setTxStatus('error')
       setTxError(err instanceof Error ? err.message : 'Cancel failed')
-    })
+    }
   }
 
   // ── BUY (real Xverse PSBT flow) ───────────────────────────────────────────────
