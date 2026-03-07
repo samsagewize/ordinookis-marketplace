@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import type { Ordinooki, Listing } from '@/types'
 import type { UseWalletReturn } from '@/hooks/useXverseWallet'
 import { getTrait, satsToDisplay, truncateAddress, truncateId, btcToSats } from '@/lib/collection'
-import { saveListing, cancelListing, markSold, addActivity, saveOffer, generateId, getOffers } from '@/lib/store'
+import { addActivity, saveOffer, generateId, getOffers } from '@/lib/store'
+import { upsertSharedListing, cancelSharedListing, markSharedSold } from '@/lib/sharedListings'
 import { fetchFeeRate, fetchInscriptionUtxo, fetchUTXOs, estimateTxFee, feeRateToEta } from '@/lib/psbt'
 
 interface Props {
@@ -167,7 +168,7 @@ export default function NookiModal({
         createdAt: new Date().toISOString(),
         // In production: signedPsbt = await wallet.signPsbt(psbtBase64, [...])
       }
-      saveListing(newListing)
+      await upsertSharedListing(newListing)
       addActivity({
         id: generateId(), type: 'listing', inscriptionId: nooki.id,
         nookiNumber: nooki.number ?? 0, fromAddress: wallet.addresses.ordinals,
@@ -184,8 +185,12 @@ export default function NookiModal({
   // ── CANCEL ────────────────────────────────────────────────────────────────────
   function handleCancel() {
     if (!listing) return
-    cancelListing(listing.id)
-    onListingChange(); onClose()
+    void cancelSharedListing(listing.id).then(() => {
+      onListingChange(); onClose()
+    }).catch((err) => {
+      setTxStatus('error')
+      setTxError(err instanceof Error ? err.message : 'Cancel failed')
+    })
   }
 
   // ── BUY (real Xverse PSBT flow) ───────────────────────────────────────────────
@@ -232,7 +237,7 @@ export default function NookiModal({
         Math.random().toString(16).slice(2, 18),
       ].join('').slice(0, 64).padEnd(64, '0')
 
-      markSold(listing.id, wallet.addresses.ordinals, mockTxid)
+      await markSharedSold(listing.id, wallet.addresses.ordinals, mockTxid)
       addActivity({
         id: generateId(), type: 'sale', inscriptionId: nooki.id,
         nookiNumber: nooki.number ?? 0,

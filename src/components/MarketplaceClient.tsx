@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import type { Ordinooki, Filters, SortOption, Listing } from '@/types'
 import { useXverseWallet } from '@/hooks/useXverseWallet'
 import { getAllTraitValues, getTrait, satsToDisplay, truncateAddress } from '@/lib/collection'
-import { getListings } from '@/lib/store'
+import { fetchSharedListings } from '@/lib/sharedListings'
 import NookiCard from '@/components/NookiCard'
 import NookiModal from '@/components/NookiModal'
 import WalletModal from '@/components/WalletModal'
@@ -40,8 +40,19 @@ export default function MarketplaceClient({ collection }: Props) {
   const [activeTab, setActiveTab] = useState<'all' | 'listed' | 'mine'>('all')
   const [filterOpen, setFilterOpen] = useState(false)
 
-  useEffect(() => { setListings(getListings()) }, [])
-  const refreshListings = useCallback(() => { setListings(getListings()) }, [])
+  const refreshListings = useCallback(async () => {
+    try {
+      setListings(await fetchSharedListings())
+    } catch (e) {
+      console.error('Failed to fetch shared listings', e)
+    }
+  }, [])
+
+  useEffect(() => {
+    void refreshListings()
+    const id = setInterval(() => { void refreshListings() }, 8000)
+    return () => clearInterval(id)
+  }, [refreshListings])
 
   const traitOptions = useMemo(() => ({
     Background: getAllTraitValues(collection, 'Background'),
