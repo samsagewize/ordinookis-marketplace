@@ -158,14 +158,14 @@ export function useXverseWallet(collection: Ordinooki[]): UseWalletReturn {
   const connect = useCallback(async () => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }))
     try {
-      const { getAddress, AddressPurpose } = await import('sats-connect')
+      const { getAddress, AddressPurpose, BitcoinNetworkType } = await import('sats-connect')
 
       await new Promise<void>((resolve, reject) => {
         getAddress({
           payload: {
             purposes: [AddressPurpose.Ordinals, AddressPurpose.Payment],
             message: 'Connect to Nooki Market to view and trade your Ordinookis',
-            network: { type: 'Mainnet' },
+            network: { type: BitcoinNetworkType.Mainnet },
           },
           onFinish: async (response) => {
             const ordinalsAddr = response.addresses.find(
