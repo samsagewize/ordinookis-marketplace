@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Tanuki / anime nostalgic palette */
+  --ink: #1a0e2e;          /* deep indigo-night */
+  --ink2: #251540;
+  --surface: #2a1a4a;
+  --surface2: #3a2460;
+  --surface3: #1e1035;
+  --border: rgba(255,200,120,0.18);
+  --border2: rgba(255,180,80,0.3);
+  --text: #fef0d0;
+  --muted: #b8a0d0;
+  --gold: #f5c842;
+  --gold2: #ffaa20;
+  --sakura: #ff8fa8;
+  --sakura2: #ffb3c6;
+  --jade: #4ecba0;
+  --jade2: #7fffd4;
+  --amber: #ff9a3c;
+  --moon: #fff8e1;
+  --scroll: #f5e6c8;
+  --btc: #f5c842;
+}
+
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--ink);
+  color: var(--text);
+  /* Layered anime night-forest atmosphere */
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(120,60,200,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,100,150,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 50% 40%, rgba(78,203,160,0.06) 0%, transparent 70%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  min-height: 100vh;
+}
+
+/* Scrollbar — bamboo style */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--ink2); }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--sakura); }
+
+::selection { background: rgba(245,200,66,0.3); }
+
+/* ── Animations ─────────────────────────────────────────────────────────── */
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.45s cubic-bezier(.22,1,.36,1) forwards; opacity: 0; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+.animate-float { animation: float 4s ease-in-out infinite; }
+
+@keyframes lantern-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50%       { transform: rotate(3deg); }
+}
+
+@keyframes shimmer-gold {
+  from { background-position: -200% center; }
+  to   { background-position: 200% center; }
+}
+
+@keyframes sakura-fall {
+  0%   { transform: translateY(-10px) rotate(0deg); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.7; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes moon-pulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(255,248,225,0.3), 0 0 60px rgba(245,200,66,0.15); }
+  50%       { box-shadow: 0 0 50px rgba(255,248,225,0.5), 0 0 100px rgba(245,200,66,0.25); }
+}
+
+@keyframes torii-glow {
+  0%, 100% { text-shadow: 0 0 20px rgba(245,200,66,0.4); }
+  50%       { text-shadow: 0 0 40px rgba(245,200,66,0.8), 0 0 80px rgba(255,143,168,0.3); }
+}
+
+/* ── Gold glow button ───────────────────────────────────────────────────── */
+.gold-glow {
+  box-shadow: 0 0 18px rgba(245,200,66,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.gold-glow:hover {
+  box-shadow: 0 0 35px rgba(245,200,66,0.6), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+/* ── Scroll / parchment border ──────────────────────────────────────────── */
+.scroll-border {
+  border: 1px solid var(--border2);
+  box-shadow: 0 0 0 1px rgba(255,200,120,0.06), inset 0 0 20px rgba(120,60,200,0.05);
+}
+
+/* ── Card inner glow on hover ───────────────────────────────────────────── */
+.card-hover {
+  transition: all 0.25s cubic-bezier(.22,1,.36,1);
+}
+.card-hover:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 30px rgba(245,200,66,0.15);
+  border-color: var(--gold) !important;
+}
+
+/* ── Modal ──────────────────────────────────────────────────────────────── */
+.modal-backdrop {
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+}
+
+/* ── Tanuki pattern bg ──────────────────────────────────────────────────── */
+.tanuki-bg {
+  background-image:
+    radial-gradient(circle at 15% 25%, rgba(245,200,66,0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(255,143,168,0.08) 0%, transparent 40%);
+}
+
+/* ── Ink stroke divider ─────────────────────────────────────────────────── */
+.ink-divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+}
+
+/* ── Gradient text ──────────────────────────────────────────────────────── */
+.text-gradient-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold2), var(--sakura));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Nft image quality ──────────────────────────────────────────────────── */
+.nft-img-wrap img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
