@@ -6,7 +6,7 @@ import type { UseWalletReturn } from '@/hooks/useXverseWallet'
 import { getTrait, satsToDisplay, truncateAddress, truncateId, btcToSats } from '@/lib/collection'
 import { addActivity, saveOffer, generateId, getOffers } from '@/lib/store'
 import { upsertSharedListing, cancelSharedListing } from '@/lib/sharedListings'
-import { fetchFeeRate, fetchInscriptionUtxo, fetchUTXOs, estimateTxFee, feeRateToEta } from '@/lib/psbt'
+import { fetchFeeRate, fetchInscriptionUtxo, estimateTxFee, feeRateToEta } from '@/lib/psbt'
 
 interface Props {
   nooki: Ordinooki
@@ -195,37 +195,42 @@ export default function NookiModal({
     }
   }
 
-  // ── BUY (production-safe phase 1: preflight only, no fake tx) ─────────────────
+  // ── BUY (phase 2 foundation: server preflight + hard block until PSBT backend) ──
   async function handleBuy() {
     if (!wallet.connected || !wallet.addresses) return onConnectWallet()
     if (!listing) return
     setTxStatus('fetching_utxo'); setTxError('')
 
     try {
-      const inscriptionUtxo = await fetchInscriptionUtxo(nooki.id)
-      if (!inscriptionUtxo) {
-        throw new Error('Inscription UTXO not found on-chain. Try again shortly.')
-      }
+      const preflightRes = await fetch('/api/trade/preflight', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          inscriptionId: nooki.id,
+          paymentAddress: wallet.addresses.payment,
+          priceInSats: listing.priceInSats,
+          feeRate,
+        }),
+      })
 
-      const paymentUtxos = await fetchUTXOs(wallet.addresses.payment)
-      const totalNeeded = listing.priceInSats + estimatedFee + 546
-      const paymentUtxo = paymentUtxos
-        .filter((u) => u.value >= totalNeeded)
-        .sort((a, b) => a.value - b.value)[0]
-
-      if (!paymentUtxo) {
-        throw new Error(
-          `Insufficient BTC. Need at least ${satsToDisplay(totalNeeded)} in payment address (${wallet.addresses.payment.slice(0,12)}…)`
-        )
+      const preflight = await preflightRes.json()
+      if (!preflightRes.ok) {
+        if (preflight?.requiredSats) {
+          throw new Error(`Insufficient BTC. Need at least ${satsToDisplay(preflight.requiredSats)} in payment address.`)
+        }
+        throw new Error(preflight?.error ?? 'Buy preflight failed')
       }
 
       if (!LIVE_TRADES_ENABLED) {
-        throw new Error('Live buy is disabled until backend PSBT endpoint is enabled (Phase 2).')
+        throw new Error('Live buy is currently disabled by environment flag.')
       }
 
-      // Phase 2 will implement server-side PSBT building/signing + broadcast.
-      setTxStatus('error')
-      setTxError('Live trade backend not wired yet.')
+      if (!listing.signedPsbt) {
+        throw new Error('Listing missing signed PSBT. Seller must relist with signed PSBT (Phase 2 listing endpoint).')
+      }
+
+      setTxStatus('signing')
+      throw new Error('Phase 2 signing/broadcast wiring is next: build/finalize PSBT endpoint still pending.')
     } catch (err) {
       setTxStatus('error')
       setTxError(err instanceof Error ? err.message : 'Purchase failed')
