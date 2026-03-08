@@ -118,6 +118,7 @@ export default function NookiModal({
   const [imgIdx, setImgIdx] = useState(0)
   const [imgLoaded, setImgLoaded] = useState(false)
   const [showOrdiscan, setShowOrdiscan] = useState(false)
+  const [signedPsbtInput, setSignedPsbtInput] = useState('')
 
   const bg = getTrait(nooki, 'Background')
   const gradient = BG_GRADIENTS[bg] ?? 'linear-gradient(135deg,#3a1a5a,#1a0e2e)'
@@ -149,16 +150,11 @@ export default function NookiModal({
     setTxStatus('fetching_utxo'); setTxError('')
 
     try {
-      // 1. Fetch the UTXO that holds this inscription
       const utxo = await fetchInscriptionUtxo(nooki.id)
       if (!utxo) throw new Error('Could not find inscription UTXO on-chain. Is this inscription on mainnet?')
 
-      // 2. Build a dummy PSBT base64 for Xverse to sign
-      //    In a full implementation you'd use bitcoinjs-lib here.
-      //    For now we store a listing record with the UTXO info so buyer can construct the PSBT.
       setTxStatus('signing')
 
-      // Store listing — UTXO info is saved so buyer can construct full PSBT
       const newListing: Listing = {
         id: generateId(),
         inscriptionId: nooki.id,
@@ -167,9 +163,23 @@ export default function NookiModal({
         priceInSats,
         status: 'active',
         createdAt: new Date().toISOString(),
-        // In production: signedPsbt = await wallet.signPsbt(psbtBase64, [...])
       }
-      await upsertSharedListing(newListing)
+
+      if (LIVE_TRADES_ENABLED) {
+        if (!signedPsbtInput.trim()) {
+          throw new Error('Live mode requires signed PSBT. Paste signed PSBT before listing.')
+        }
+        const liveRes = await fetch('/api/trade/listing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ listing: { ...newListing, signedPsbt: signedPsbtInput.trim() } }),
+        })
+        const data = await liveRes.json()
+        if (!liveRes.ok) throw new Error(data?.error ?? 'Live listing failed')
+      } else {
+        await upsertSharedListing(newListing)
+      }
+
       addActivity({
         id: generateId(), type: 'listing', inscriptionId: nooki.id,
         nookiNumber: nooki.number ?? 0, fromAddress: wallet.addresses.ordinals,
@@ -465,6 +475,17 @@ export default function NookiModal({
                         <input type="number" step="0.00001" min="0.0000546" placeholder="e.g. 0.00420" value={priceInput} onChange={(e) => setPriceInput(e.target.value)} style={inputStyle} />
                         {priceInSats > 0 && <p style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'monospace', marginTop: 4 }}>= {priceInSats.toLocaleString()} sats · ~{satsToDisplay(priceInSats)}</p>}
                       </div>
+                      {LIVE_TRADES_ENABLED && (
+                        <div>
+                          <label style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'monospace', display: 'block', marginBottom: 6 }}>Seller Signed PSBT (base64)</label>
+                          <textarea
+                            placeholder="Paste signed PSBT base64"
+                            value={signedPsbtInput}
+                            onChange={(e) => setSignedPsbtInput(e.target.value)}
+                            style={{ ...inputStyle, minHeight: 90, resize: 'vertical' as const }}
+                          />
+                        </div>
+                      )}
                       {txError && <p style={{ color: '#ff8fa8', fontSize: 11, fontFamily: 'monospace' }}>{txError}</p>}
                       <div style={{ display: 'flex', gap: 10 }}>
                         <button onClick={() => { setMode('view'); setTxError('') }} style={{ flex: 1, padding: '11px', borderRadius: 12, border: '1px solid rgba(245,200,66,0.2)', background: 'transparent', color: 'var(--muted)', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>

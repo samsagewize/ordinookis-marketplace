@@ -6,13 +6,14 @@
   - verifies buyer payment UTXO can cover price + fee + dust
 - Added server broadcast endpoint: `POST /api/trade/broadcast`
   - relays signed tx hex to mempool.space
+- Added live listing endpoint: `POST /api/trade/listing`
+  - requires `signedPsbt` for live listings
+  - verifies inscription UTXO before persisting listing
 - Buy UI now uses server preflight instead of client-only checks.
-- Buy flow is hard-blocked unless:
-  - `NEXT_PUBLIC_ENABLE_LIVE_TRADES=true`
-  - listing contains `signedPsbt`
+- Listing UI now supports signed PSBT input when live mode is enabled.
 
 ## Still required to complete true live trading
-1. Listing endpoint to build seller PSBT and store `signedPsbt`.
+1. Server-side PSBT builder for sellers (instead of manual signed PSBT paste).
 2. Buy endpoint to merge seller PSBT + buyer inputs, return unsigned/finalizable PSBT.
 3. Wallet signing flow for buyer PSBT + broadcast call.
 4. Persist listing/order state in production DB (Supabase/Postgres).
