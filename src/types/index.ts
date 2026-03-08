@@ -28,8 +28,9 @@ export interface Listing {
   inscriptionId: string
   ordinooki: Ordinooki
   sellerAddress: string
+  sellerPaymentAddress?: string
   priceInSats: number
-  signedPsbt?: string   // stored hex of seller-signed PSBT
+  signedPsbt?: string   // seller-signed PSBT (base64)
   status: ListingStatus
   createdAt: string
   soldAt?: string

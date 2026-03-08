@@ -5,7 +5,7 @@ import type { Ordinooki, Listing } from '@/types'
 import type { UseWalletReturn } from '@/hooks/useXverseWallet'
 import { getTrait, satsToDisplay, truncateAddress, truncateId, btcToSats } from '@/lib/collection'
 import { addActivity, saveOffer, generateId, getOffers } from '@/lib/store'
-import { upsertSharedListing, cancelSharedListing } from '@/lib/sharedListings'
+import { upsertSharedListing, cancelSharedListing, markSharedSold } from '@/lib/sharedListings'
 import { fetchFeeRate, fetchInscriptionUtxo, estimateTxFee, feeRateToEta } from '@/lib/psbt'
 
 interface Props {
@@ -160,6 +160,7 @@ export default function NookiModal({
         inscriptionId: nooki.id,
         ordinooki: nooki,
         sellerAddress: wallet.addresses.ordinals,
+        sellerPaymentAddress: wallet.addresses.payment,
         priceInSats,
         status: 'active',
         createdAt: new Date().toISOString(),
@@ -246,6 +247,7 @@ export default function NookiModal({
         body: JSON.stringify({
           listingId: listing.id,
           buyerPaymentAddress: wallet.addresses.payment,
+          buyerOrdinalAddress: wallet.addresses.ordinals,
           feeRate,
         }),
       })
@@ -254,7 +256,34 @@ export default function NookiModal({
         throw new Error(finalize?.error ?? 'Finalize failed')
       }
 
-      throw new Error('Finalize returned no executable PSBT yet. Next patch will add bitcoinjs-lib finalization.')
+      setTxStatus('signing')
+      const signedPsbtBase64 = await wallet.signPsbt(finalize.psbtBase64, finalize.inputsToSign)
+
+      setTxStatus('broadcasting')
+      const broadcastRes = await fetch('/api/trade/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ signedPsbtBase64 }),
+      })
+      const broadcast = await broadcastRes.json()
+      if (!broadcastRes.ok) {
+        throw new Error(broadcast?.error ?? 'Broadcast failed')
+      }
+
+      const realTxid = String(broadcast.txid)
+      await markSharedSold(listing.id, wallet.addresses.ordinals, realTxid)
+      addActivity({
+        id: generateId(), type: 'sale', inscriptionId: nooki.id,
+        nookiNumber: nooki.number ?? 0,
+        fromAddress: listing.sellerAddress,
+        toAddress: wallet.addresses.ordinals,
+        priceInSats: listing.priceInSats,
+        txid: realTxid,
+        timestamp: new Date().toISOString(),
+      })
+      setTxid(realTxid)
+      setTxStatus('done')
+      onListingChange()
     } catch (err) {
       setTxStatus('error')
       setTxError(err instanceof Error ? err.message : 'Purchase failed')

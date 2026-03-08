@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const listing: Listing = body.listing
 
-    if (!listing?.id || !listing?.inscriptionId || !listing?.sellerAddress || !listing?.priceInSats) {
+    if (!listing?.id || !listing?.inscriptionId || !listing?.sellerAddress || !listing?.sellerPaymentAddress || !listing?.priceInSats) {
       return NextResponse.json({ error: 'Missing required listing fields' }, { status: 400 })
     }
 
