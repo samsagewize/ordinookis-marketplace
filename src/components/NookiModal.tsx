@@ -5,7 +5,7 @@ import type { Ordinooki, Listing } from '@/types'
 import type { UseWalletReturn } from '@/hooks/useXverseWallet'
 import { getTrait, satsToDisplay, truncateAddress, truncateId, btcToSats } from '@/lib/collection'
 import { addActivity, saveOffer, generateId, getOffers } from '@/lib/store'
-import { upsertSharedListing, cancelSharedListing, markSharedSold } from '@/lib/sharedListings'
+import { upsertSharedListing, cancelSharedListing } from '@/lib/sharedListings'
 import { fetchFeeRate, fetchInscriptionUtxo, fetchUTXOs, estimateTxFee, feeRateToEta } from '@/lib/psbt'
 
 interface Props {
@@ -104,6 +104,7 @@ export default function NookiModal({
   nooki, listing, wallet, isOwned, onClose, onListingChange, onConnectWallet,
 }: Props) {
   type TxStatus = 'idle' | 'fetching_utxo' | 'signing' | 'broadcasting' | 'done' | 'error'
+  const LIVE_TRADES_ENABLED = process.env.NEXT_PUBLIC_ENABLE_LIVE_TRADES === 'true'
   type Mode = 'view' | 'list' | 'offer' | 'buy_confirm'
 
   const [mode, setMode] = useState<Mode>('view')
@@ -194,24 +195,20 @@ export default function NookiModal({
     }
   }
 
-  // ── BUY (real Xverse PSBT flow) ───────────────────────────────────────────────
+  // ── BUY (production-safe phase 1: preflight only, no fake tx) ─────────────────
   async function handleBuy() {
     if (!wallet.connected || !wallet.addresses) return onConnectWallet()
     if (!listing) return
     setTxStatus('fetching_utxo'); setTxError('')
 
     try {
-      // 1. Fetch inscription UTXO (fallback for test/demo mode)
       const inscriptionUtxo = await fetchInscriptionUtxo(nooki.id)
-      const effectiveInscriptionUtxo = inscriptionUtxo ?? {
-        txid: nooki.id.split('i')[0]?.slice(0, 64) || '0'.repeat(64),
-        vout: 0,
-        value: 546,
+      if (!inscriptionUtxo) {
+        throw new Error('Inscription UTXO not found on-chain. Try again shortly.')
       }
 
-      // 2. Fetch a payment UTXO from buyer's payment address
       const paymentUtxos = await fetchUTXOs(wallet.addresses.payment)
-      const totalNeeded = listing.priceInSats + estimatedFee + 546 // price + fee + dust
+      const totalNeeded = listing.priceInSats + estimatedFee + 546
       const paymentUtxo = paymentUtxos
         .filter((u) => u.value >= totalNeeded)
         .sort((a, b) => a.value - b.value)[0]
@@ -222,39 +219,13 @@ export default function NookiModal({
         )
       }
 
-      // 3. Ask Xverse to sign via signPsbt
-      //    We pass the inscription input (index 0) + payment input (index 1)
-      //    Real PSBT construction requires bitcoinjs-lib — this triggers Xverse's flow
-      setTxStatus('signing')
+      if (!LIVE_TRADES_ENABLED) {
+        throw new Error('Live buy is disabled until backend PSBT endpoint is enabled (Phase 2).')
+      }
 
-      // For now: record the sale as pending (real PSBT signing requires bitcoinjs-lib)
-      // This proves the wallet flow works and the listing/buy cycle is functional
-      await new Promise((r) => setTimeout(r, 800)) // simulate Xverse popup
-
-      setTxStatus('broadcasting')
-      await new Promise((r) => setTimeout(r, 600))
-
-      // Generate a realistic-looking mock txid for now
-      const mockTxid = [
-        effectiveInscriptionUtxo.txid.slice(0, 8),
-        paymentUtxo.txid.slice(0, 8),
-        Date.now().toString(16),
-        Math.random().toString(16).slice(2, 18),
-      ].join('').slice(0, 64).padEnd(64, '0')
-
-      await markSharedSold(listing.id, wallet.addresses.ordinals, mockTxid)
-      addActivity({
-        id: generateId(), type: 'sale', inscriptionId: nooki.id,
-        nookiNumber: nooki.number ?? 0,
-        fromAddress: listing.sellerAddress,
-        toAddress: wallet.addresses.ordinals,
-        priceInSats: listing.priceInSats,
-        txid: mockTxid,
-        timestamp: new Date().toISOString(),
-      })
-      setTxid(mockTxid)
-      setTxStatus('done')
-      onListingChange()
+      // Phase 2 will implement server-side PSBT building/signing + broadcast.
+      setTxStatus('error')
+      setTxError('Live trade backend not wired yet.')
     } catch (err) {
       setTxStatus('error')
       setTxError(err instanceof Error ? err.message : 'Purchase failed')
