@@ -240,7 +240,21 @@ export default function NookiModal({
       }
 
       setTxStatus('signing')
-      throw new Error('Phase 2 signing/broadcast wiring is next: build/finalize PSBT endpoint still pending.')
+      const finalizeRes = await fetch('/api/trade/finalize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          listingId: listing.id,
+          buyerPaymentAddress: wallet.addresses.payment,
+          feeRate,
+        }),
+      })
+      const finalize = await finalizeRes.json()
+      if (!finalizeRes.ok) {
+        throw new Error(finalize?.error ?? 'Finalize failed')
+      }
+
+      throw new Error('Finalize returned no executable PSBT yet. Next patch will add bitcoinjs-lib finalization.')
     } catch (err) {
       setTxStatus('error')
       setTxError(err instanceof Error ? err.message : 'Purchase failed')

@@ -9,11 +9,15 @@
 - Added live listing endpoint: `POST /api/trade/listing`
   - requires `signedPsbt` for live listings
   - verifies inscription UTXO before persisting listing
-- Buy UI now uses server preflight instead of client-only checks.
+- Added finalize endpoint: `POST /api/trade/finalize`
+  - validates active listing + seller PSBT presence
+  - validates buyer payment UTXO plan
+  - blocks with `501` until PSBT engine is enabled
+- Buy UI now uses server preflight + finalize endpoints.
 - Listing UI now supports signed PSBT input when live mode is enabled.
 
 ## Still required to complete true live trading
 1. Server-side PSBT builder for sellers (instead of manual signed PSBT paste).
-2. Buy endpoint to merge seller PSBT + buyer inputs, return unsigned/finalizable PSBT.
-3. Wallet signing flow for buyer PSBT + broadcast call.
+2. Implement bitcoinjs-lib finalize engine in `/api/trade/finalize`.
+3. Wallet signing flow for buyer finalized PSBT + `/api/trade/broadcast`.
 4. Persist listing/order state in production DB (Supabase/Postgres).
