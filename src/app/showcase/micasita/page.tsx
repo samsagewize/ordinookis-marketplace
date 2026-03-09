@@ -7,8 +7,8 @@ export default function MicasitaShowcase() {
     textDecoration: 'none',
     fontWeight: 600,
     fontSize: 14,
-    background: '#f5f7ff',
-    border: '1px solid #e7ecff',
+    background: '#fff2e8',
+    border: '1px solid #ffd9c7',
     marginBottom: 8,
   } as const
 
@@ -19,7 +19,7 @@ export default function MicasitaShowcase() {
         paddingBottom: 90,
         fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif',
         background:
-          'radial-gradient(circle at 20% 10%, #e9f1ff 0%, transparent 34%), radial-gradient(circle at 80% 0%, #ffe8f4 0%, transparent 36%), linear-gradient(160deg, #f9fbff 0%, #ffffff 100%)',
+          'radial-gradient(circle at 20% 10%, #fff3dc 0%, transparent 34%), radial-gradient(circle at 80% 0%, #ffe0d7 0%, transparent 36%), linear-gradient(160deg, #fffaf4 0%, #ffffff 100%)',
         color: '#1f2442',
       }}
     >
@@ -36,8 +36,8 @@ export default function MicasitaShowcase() {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
             <div>
-              <h1 style={{ margin: '0 0 4px', fontSize: 28, lineHeight: 1.08 }}>Mi Casita Restaurant</h1>
-              <p style={{ margin: 0, color: '#5f6790', fontSize: 13 }}>Isla Verde, Carolina · Cocina puertorriqueña</p>
+              <h1 style={{ margin: '0 0 4px', fontSize: 28, lineHeight: 1.08, color:'#5a1a12' }}>Mi Casita Restaurant</h1>
+              <p style={{ margin: 0, color: '#7a4a3f', fontSize: 13 }}>Isla Verde, Carolina · Cocina puertorriqueña</p>
             </div>
 
             <details style={{ position: 'relative' }}>
@@ -55,7 +55,7 @@ export default function MicasitaShowcase() {
                   placeItems: 'center',
                 }}
               >
-                <span style={{ display: 'block', width: 18, height: 2, background: '#3e4ab8', boxShadow: '0 6px 0 #3e4ab8, 0 -6px 0 #3e4ab8' }} />
+                <span style={{ display: 'block', width: 18, height: 2, background: '#b42318', boxShadow: '0 6px 0 #b42318, 0 -6px 0 #b42318' }} />
               </summary>
               <div
                 style={{
