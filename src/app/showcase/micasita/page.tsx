@@ -26,7 +26,7 @@ export default function MicasitaShowcase() {
               <p style={{ margin: 0, fontWeight: 700, color: '#7b43ff', letterSpacing: 0.4 }}>FREE LIVE DEMO</p>
               <h1 style={{ margin: '4px 0 6px', fontSize: 36, lineHeight: 1.05 }}>Mi Casita Restaurant</h1>
               <p style={{ margin: 0, color: '#555a7a' }}>
-                Modern website concept by <strong>Caribe Code PR</strong>
+                Concepto modernito by <strong>Caribe Code PR</strong> — pa’ que se vea brutal, bien nítido y full boricua.
               </p>
             </div>
             <a
@@ -64,7 +64,7 @@ export default function MicasitaShowcase() {
           <article style={{ borderRadius: 18, padding: 18, background: 'white', boxShadow: '0 8px 24px rgba(31,31,46,.07)' }}>
             <h3 style={{ marginTop: 0 }}>About</h3>
             <p style={{ marginBottom: 0, color: '#59607d' }}>
-              Family-friendly Puerto Rican food in Isla Verde, with a warm local vibe and strong community presence.
+Comida criolla sabrosa en Isla Verde, ambiente familiar y ese vacilón boricua que hace que la gente vuelva.
             </p>
           </article>
 
@@ -93,7 +93,7 @@ export default function MicasitaShowcase() {
         <section style={{marginTop:18, display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))', gap:12}}>
           <div style={{background:'#fff', borderRadius:16, padding:14, boxShadow:'0 8px 20px rgba(0,0,0,.06)'}}>
             <h4 style={{margin:'0 0 8px'}}>Social buzz highlights</h4>
-            <p style={{margin:0, color:'#5b6283', fontSize:14}}>Public page signals show strong engagement and repeat customer interaction around Isla Verde.</p>
+            <p style={{margin:0, color:'#5b6283', fontSize:14}}>La página está prendía: mucha interacción, comentarios y gente metiéndole al jangueo gastronómico.</p>
           </div>
           <div style={{background:'#fff', borderRadius:16, padding:14, boxShadow:'0 8px 20px rgba(0,0,0,.06)'}}>
             <h4 style={{margin:'0 0 8px'}}>Suggested hashtags</h4>
