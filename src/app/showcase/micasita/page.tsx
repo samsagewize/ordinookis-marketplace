@@ -48,9 +48,9 @@ export default function MicasitaShowcase() {
         </header>
 
         <img
-          src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1600&auto=format&fit=crop"
-          alt="Restaurant ambiance demo"
-          style={{ width: '100%', borderRadius: 22, boxShadow: '0 16px 30px rgba(20,20,40,.12)', marginBottom: 18 }}
+          src="https://scontent.fsju2-1.fna.fbcdn.net/v/t39.30808-6/494590465_1316207097175671_6743565191557325707_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=109&ccb=1-7&_nc_sid=7b2446&_nc_ohc=Qa7Jiso4jVkQ7kNvwHuNI0X&_nc_oc=AdkDaqY2TC8U8V-gQ5GUi_gV7A2Y09jNf8eA0Y8kQv8h6ylQZTd9B8x6T31mR6q6hZk&_nc_zt=23&_nc_ht=scontent.fsju2-1.fna&_nc_gid=j_mCrYGv8xTIWFCWPkk8yw&oh=00_AfwaQDRlrX4DtiZqS8x1CwDaO-RlLerffohK2xFAiqdDaw&oe=69B4667A"
+          alt="Mi Casita social preview"
+          style={{ width: '100%', borderRadius: 22, boxShadow: '0 16px 30px rgba(20,20,40,.12)', marginBottom: 18, objectFit: 'cover', maxHeight: 420 }}
         />
 
         <section
@@ -83,6 +83,11 @@ export default function MicasitaShowcase() {
             <li>Instagram/Facebook highlight sections</li>
             <li>Lead form + booking/contact CTA</li>
           </ul>
+          <img
+            src="https://scontent.fsju2-1.fna.fbcdn.net/v/t39.30808-1/264811409_2337286599747408_6364893800807308072_n.png?stp=dst-png&cstp=mx923x923&ctp=s720x720&_nc_cat=102&ccb=1-7&_nc_sid=3ab345&_nc_ohc=-3cDe9DDd_4Q7kNvwE4Wx8o&_nc_oc=AdkkHUT_QlrFs8nTyp4AWU6CytLL2JXH7f4emjWmK-O2wl_60p-3AeJbZBJt69ZLZpSnUzx00dr4XB62DwEFvalz&_nc_zt=24&_nc_ht=scontent.fsju2-1.fna&_nc_gid=ypR6jkETxCgWekmoWidjmQ&_nc_ss=8&oh=00_AfxL2s9Z99RifS045TO6RzVq6APzqIJqdNOwVGPW0d6tGg&oe=69B45F18"
+            alt="Mi Casita logo from social"
+            style={{ marginTop: 16, width: 120, height: 120, objectFit: 'cover', borderRadius: 18, border: '1px solid #eee' }}
+          />
         </section>
 
         <footer style={{ marginTop: 20, color: '#5b6283', fontSize: 14 }}>
