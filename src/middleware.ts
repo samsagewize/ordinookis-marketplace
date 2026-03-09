@@ -21,6 +21,14 @@ export function middleware(req: NextRequest) {
     url.pathname = '/showcase/demo3'
     return NextResponse.rewrite(url)
   }
+  if (host.startsWith('musa.ordinooki.wtf') && url.pathname === '/') {
+    url.pathname = '/showcase/musa'
+    return NextResponse.rewrite(url)
+  }
+  if (host.startsWith('puertocriollo.ordinooki.wtf') && url.pathname === '/') {
+    url.pathname = '/showcase/puertocriollo'
+    return NextResponse.rewrite(url)
+  }
 
   return NextResponse.next()
 }
