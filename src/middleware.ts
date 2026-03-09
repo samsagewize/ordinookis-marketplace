@@ -9,6 +9,18 @@ export function middleware(req: NextRequest) {
     url.pathname = '/showcase/micasita'
     return NextResponse.rewrite(url)
   }
+  if (host.startsWith('demo1.ordinooki.wtf') && url.pathname === '/') {
+    url.pathname = '/showcase/demo1'
+    return NextResponse.rewrite(url)
+  }
+  if (host.startsWith('demo2.ordinooki.wtf') && url.pathname === '/') {
+    url.pathname = '/showcase/demo2'
+    return NextResponse.rewrite(url)
+  }
+  if (host.startsWith('demo3.ordinooki.wtf') && url.pathname === '/') {
+    url.pathname = '/showcase/demo3'
+    return NextResponse.rewrite(url)
+  }
 
   return NextResponse.next()
 }
