@@ -2,9 +2,10 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 export function middleware(req: NextRequest) {
-  const host = req.headers.get('host') || ''
+  const host = (req.headers.get('host') || '').split(':')[0]
   const url = req.nextUrl.clone()
 
+  // Legacy test domain routes
   if (host.startsWith('micasita.ordinooki.wtf') && url.pathname === '/') {
     url.pathname = '/showcase/micasita'
     return NextResponse.rewrite(url)
@@ -28,6 +29,15 @@ export function middleware(req: NextRequest) {
   if (host.startsWith('puertocriollo.ordinooki.wtf') && url.pathname === '/') {
     url.pathname = '/showcase/puertocriollo'
     return NextResponse.rewrite(url)
+  }
+
+  // New production domain: <business>.caribecodepr.com -> /showcase/<business>
+  if (host.endsWith('.caribecodepr.com') && url.pathname === '/') {
+    const slug = host.replace('.caribecodepr.com', '')
+    if (slug && slug !== 'www') {
+      url.pathname = `/showcase/${slug}`
+      return NextResponse.rewrite(url)
+    }
   }
 
   return NextResponse.next()
