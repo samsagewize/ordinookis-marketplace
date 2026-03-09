@@ -99,6 +99,11 @@ export default function MicasitaShowcase() {
             <h4 style={{margin:'0 0 8px'}}>Suggested hashtags</h4>
             <p style={{margin:0, color:'#5b6283', fontSize:14}}>#MiCasitaPR #IslaVerde #ComidaCriolla #PuertoRicoFood</p>
           </div>
+          <div style={{background:'#fff', borderRadius:16, padding:14, boxShadow:'0 8px 20px rgba(0,0,0,.06)'}}>
+            <h4 style={{margin:'0 0 8px'}}>Tripadvisor proof</h4>
+            <p style={{margin:'0 0 8px', color:'#5b6283', fontSize:14}}>Listed on Tripadvisor with 1,500+ reviews and photo gallery.</p>
+            <a href="https://www.tripadvisor.com/Restaurant_Review-g2665727-d810435-Reviews-Mi_Casita-Isla_Verde_Carolina_Puerto_Rico.html" target="_blank" style={{fontSize:14}}>View Tripadvisor listing</a>
+          </div>
         </section>
 
         <footer style={{ marginTop: 20, color: '#5b6283', fontSize: 14 }}>
